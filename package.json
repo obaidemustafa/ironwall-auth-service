@@ -1,0 +1,29 @@
+{
+  "name": "ironwall-auth-service",
+  "version": "1.0.0",
+  "description": "Authentication and Chat backend for IronWall",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.3",
+    "multer": "^1.4.5-lts.1"
+  },
+  "keywords": [
+    "auth",
+    "gemini",
+    "ironwall"
+  ],
+  "author": "",
+  "license": "ISC"
+}
