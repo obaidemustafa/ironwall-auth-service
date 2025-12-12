@@ -51,7 +51,16 @@ export const uploadAvatar = async (req, res) => {
         });
     } catch (error) {
         console.error('Avatar Upload Error:', error);
-        res.status(500).json({ message: 'Failed to upload avatar.', error: error.message });
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            http_code: error.http_code,
+        });
+        res.status(500).json({
+            message: 'Failed to upload avatar.',
+            error: error.message,
+            details: error.http_code ? `Cloudinary error code: ${error.http_code}` : 'Check server logs'
+        });
     }
 };
 
