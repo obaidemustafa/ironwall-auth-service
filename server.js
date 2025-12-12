@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import { seedDatabase } from './seed.js';
+import { verifyEmailConnection } from './utils/email.js';
 
 dotenv.config();
 
@@ -60,6 +61,9 @@ const startServer = async () => {
 
         // Run seed to ensure default users exist
         await seedDatabase();
+
+        // Verify email connection
+        await verifyEmailConnection();
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}`);

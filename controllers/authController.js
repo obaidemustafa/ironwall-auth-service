@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import User from '../models/User.js';
+import { sendOTPEmail } from '../utils/email.js';
 
 const signToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -50,14 +51,19 @@ export const register = async (req, res) => {
             }
         }
 
-        // Log OTP (in production, send via email using nodemailer)
-        console.log(`\n📧 OTP for ${email}: ${otp}\n`);
+        // Send OTP via email
+        try {
+            await sendOTPEmail(email, otp, username);
+            console.log(`✅ OTP sent to ${email}`);
+        } catch (emailError) {
+            console.error('Failed to send OTP email:', emailError.message);
+            // Still log OTP for development fallback
+            console.log(`\n📧 OTP for ${email}: ${otp}\n`);
+        }
 
         res.status(200).json({
             message: 'OTP sent to your email. Please verify to complete registration.',
             email: email,
-            // In development, we include OTP for testing. Remove in production!
-            otp: process.env.NODE_ENV === 'development' ? otp : undefined,
         });
     } catch (error) {
         console.error('Register Error:', error);
@@ -144,11 +150,17 @@ export const resendOTP = async (req, res) => {
         pending.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
         pendingRegistrations.set(email, pending);
 
-        console.log(`\n📧 New OTP for ${email}: ${newOtp}\n`);
+        // Send OTP via email
+        try {
+            await sendOTPEmail(email, newOtp, pending.username);
+            console.log(`✅ New OTP sent to ${email}`);
+        } catch (emailError) {
+            console.error('Failed to send OTP email:', emailError.message);
+            console.log(`\n📧 New OTP for ${email}: ${newOtp}\n`);
+        }
 
         res.status(200).json({
             message: 'New OTP sent to your email.',
-            otp: process.env.NODE_ENV === 'development' ? newOtp : undefined,
         });
     } catch (error) {
         console.error('Resend OTP Error:', error);
