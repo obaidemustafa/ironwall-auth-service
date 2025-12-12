@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import { seedDatabase } from './seed.js';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const PORT = process.env.PORT || 5001;
 // CORS Configuration - Allow frontend origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:5173', 'http://localhost:3000'];
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080'];
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -56,6 +57,9 @@ const startServer = async () => {
         }
         await mongoose.connect(mongoUri);
         console.log('✅ Connected to MongoDB');
+
+        // Run seed to ensure default users exist
+        await seedDatabase();
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}`);
