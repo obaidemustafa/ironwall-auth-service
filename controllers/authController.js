@@ -94,8 +94,15 @@ export const verifyOTP = async (req, res) => {
         }
 
         // Verify OTP
-        if (pending.otp !== otp) {
+        if (pending.otp !== otp.toString().trim()) {
             return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
+        }
+
+        // Check again if user was created in the meantime (race condition)
+        const existingUser = await User.findOne({ $or: [{ email: pending.email }, { username: pending.username }] });
+        if (existingUser) {
+            pendingRegistrations.delete(email);
+            return res.status(400).json({ message: 'User with this email or username already exists.' });
         }
 
         // Create the user
@@ -124,6 +131,19 @@ export const verifyOTP = async (req, res) => {
         });
     } catch (error) {
         console.error('Verify OTP Error:', error);
+
+        // Handle MongoDB duplicate key error
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern || {})[0] || 'field';
+            return res.status(400).json({ message: `A user with this ${field} already exists.` });
+        }
+
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map((e) => e.message);
+            return res.status(400).json({ message: messages.join('. ') });
+        }
+
         res.status(500).json({ message: 'Server error during verification.', error: error.message });
     }
 };
