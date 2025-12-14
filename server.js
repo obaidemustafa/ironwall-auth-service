@@ -56,8 +56,9 @@ const startServer = async () => {
             console.error('MONGODB_URI is not defined in .env');
             process.exit(1);
         }
-        await mongoose.connect(mongoUri);
-        console.log('✅ Connected to MongoDB');
+        // Connect to the 'ironwall' database
+        await mongoose.connect(mongoUri, { dbName: 'ironwall' });
+        console.log('✅ Connected to MongoDB (ironwall database)');
 
         // Run seed to ensure default users exist
         await seedDatabase();
