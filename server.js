@@ -15,8 +15,10 @@ const PORT = process.env.PORT || 5001;
 
 // CORS Configuration - Allow frontend origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
     : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080'];
+
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -37,6 +39,10 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 
 // Routes
